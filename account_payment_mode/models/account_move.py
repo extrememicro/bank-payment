@@ -139,8 +139,6 @@ class AccountMove(models.Model):
             default_values["payment_mode_id"] = (
                 move.payment_mode_id.refund_payment_mode_id.id
             )
-            if move.move_type == "in_invoice":
-                default_values["partner_bank_id"] = move.partner_bank_id.id
         return super()._reverse_moves(
             default_values_list=default_values_list, cancel=cancel
         )

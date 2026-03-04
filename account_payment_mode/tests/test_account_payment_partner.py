@@ -397,8 +397,12 @@ class TestAccountPaymentPartner(BaseCommon):
             refund_invoice.payment_mode_id,
             invoice.payment_mode_id.refund_payment_mode_id,
         )
-        # Now the partner_bank_id can be a not allow_out_payment bank account
+        # A vendor bill reversal creates an inbound document (in_refund), so the
+        # bank account to show should belong to the bank partner (company).
         self.assertTrue(refund_invoice.partner_bank_id)
+        self.assertIn(
+            refund_invoice.partner_bank_id, refund_invoice.bank_partner_id.bank_ids
+        )
 
     def test_invoice_out_refund(self):
         invoice = self._create_invoice(
@@ -432,7 +436,10 @@ class TestAccountPaymentPartner(BaseCommon):
             refund_invoice.payment_mode_id,
             invoice.payment_mode_id.refund_payment_mode_id,
         )
-        self.assertEqual(refund_invoice.partner_bank_id, invoice.partner_bank_id)
+        # A customer invoice reversal creates an outbound document (out_refund):
+        # the bank account comes from the customer, and our test customer has no
+        # bank account configured.
+        self.assertFalse(refund_invoice.partner_bank_id)
 
     def test_partner(self):
         self.customer.write({"customer_payment_mode_id": self.customer_payment_mode.id})
